@@ -1,6 +1,7 @@
 package br.com.serratec.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.serratec.enums.StatusPedido;
@@ -33,12 +34,14 @@ public class Pedido {
     private Cliente cliente;
 
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ItemPedido> itens;
+    private List<ItemPedido> itens = new ArrayList<>(); // ✅ Inicialização para evitar NullPointerException
 
     @Enumerated(EnumType.STRING)
     private StatusPedido status;
 
     public Pedido() {
+        // Opcionalmente, garantir que a lista nunca seja nula
+        this.itens = new ArrayList<>();
     }
 
     // Getters e Setters padrão JavaBean
