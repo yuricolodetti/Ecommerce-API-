@@ -1,8 +1,6 @@
 package br.com.serratec.dto;
 
 import br.com.serratec.entity.Avaliacao;
-import br.com.serratec.entity.Produto;
-import br.com.serratec.entity.Cliente;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -18,6 +16,9 @@ public class AvaliacaoRequestDTO {
     private String nomeProduto;
     private Long idCliente;
     private String nomeCliente;
+    
+    public AvaliacaoRequestDTO() {
+    }
     
     
     

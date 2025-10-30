@@ -26,7 +26,7 @@ public class Produto {
     @JsonBackReference
 	@ManyToOne
 	@NotNull(message = "Produto deve estar vinculado a uma categoria válida!")
-	@JoinColumn(name = "id_categoria")
+	@JoinColumn(name = "categoria_id")
     private Categoria categoria;
 
     public Produto() {
