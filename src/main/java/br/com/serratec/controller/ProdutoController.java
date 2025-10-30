@@ -2,46 +2,98 @@ package br.com.serratec.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.serratec.dto.ProdutoRequestDTO;
 import br.com.serratec.dto.ProdutoResponseDTO;
+import br.com.serratec.entity.Produto;
 import br.com.serratec.service.ProdutoService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
+@Tag(name = "Produto", description = "Listagem, Cadastro, Alteração e Remoção de Produtos")
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
 
-    private final ProdutoService produtoService;
+	@Autowired
+	private ProdutoService service;
 
-    public ProdutoController(ProdutoService produtoService) {
-        this.produtoService = produtoService;
-    }
+	@Operation(summary = "Lista todos os produtos", description = "A resposta lista todos os produtos")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", content = {
+			@Content(schema = @Schema(implementation = Produto.class), mediaType = "application/json") }, description = "Retorna todos os produtos"),
+			@ApiResponse(responseCode = "401", description = "Erro de autenticação"),
+			@ApiResponse(responseCode = "403", description = "Não há permissão para acessar o recurso"),
+			@ApiResponse(responseCode = "404", description = "Recurso não encontrado"),
+			@ApiResponse(responseCode = "505", description = "Exceção interna da aplicação") })
+	
+	@GetMapping
+	public ResponseEntity<List<ProdutoResponseDTO>> listarTodos() {
+		List<ProdutoResponseDTO> produtos = service.listar();
+		return ResponseEntity.ok(produtos);
+	}
 
-    @GetMapping
-    public ResponseEntity<List<ProdutoResponseDTO>> listar() {
-        return ResponseEntity.ok(produtoService.listar());
-    }
+	@Operation(summary = "Busca um Produto", description = "A resposta é o produto encontrado pelo ID")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", content = {
+			@Content(schema = @Schema(implementation = Produto.class), mediaType = "application/json") }, description = "Produto encontrado com sucesso"),
+			@ApiResponse(responseCode = "401", description = "Erro de autenticação"),
+			@ApiResponse(responseCode = "403", description = "Não há permissão para acessar o recurso"),
+			@ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+			@ApiResponse(responseCode = "505", description = "Exceção interna da aplicação") })
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable Long id) {
+		ProdutoResponseDTO dto = service.buscar(id);
+		return ResponseEntity.ok(dto);
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> buscar(@PathVariable Long id) {
-        return ResponseEntity.ok(produtoService.buscar(id));
-    }
+	@Operation(summary = "Cadastra um Produto", description = "A resposta é o produto salvo ")
+	@ApiResponses(value = { @ApiResponse(responseCode = "201", content = {
+			@Content(schema = @Schema(implementation = Produto.class), mediaType = "application/json") }, description = "Produto cadastrado com sucesso! "),
+			@ApiResponse(responseCode = "401", description = "Erro de autenticação"),
+			@ApiResponse(responseCode = "403", description = "Não há permissão para acessar o recurso"),
+			@ApiResponse(responseCode = "404", description = "Recurso não encontrado"),
+			@ApiResponse(responseCode = "505", description = "Exceção interna da aplicação") })
+	
+	@PostMapping
+	public ResponseEntity<ProdutoResponseDTO> criar(@Valid @RequestBody ProdutoRequestDTO produtoRequest) {
+		ProdutoResponseDTO criado = service.inserir(produtoRequest);
+		return ResponseEntity.status(201).body(criado);
+	}
 
-    @PostMapping
-    public ResponseEntity<ProdutoResponseDTO> inserir(@RequestBody ProdutoRequestDTO dto) {
-        return ResponseEntity.ok(produtoService.inserir(dto));
-    }
+	@Operation(summary = "Atualiza um Produto", description = "A resposta é o produto atualizado pelo ID")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", content = {
+			@Content(schema = @Schema(implementation = Produto.class), mediaType = "application/json") }, description = "Produto atualizado com sucesso"),
+			@ApiResponse(responseCode = "401", description = "Erro de autenticação"),
+			@ApiResponse(responseCode = "403", description = "Não há permissão para acessar o recurso"),
+			@ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+			@ApiResponse(responseCode = "505", description = "Exceção interna da aplicação") })
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Long id,
+			@Valid @RequestBody ProdutoRequestDTO produtoRequest) {
+		ProdutoResponseDTO atualizado = service.atualizar(id, produtoRequest);
+		return ResponseEntity.ok(atualizado);
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Long id, @RequestBody ProdutoRequestDTO dto) {
-        return ResponseEntity.ok(produtoService.atualizar(id, dto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        produtoService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
+	@Operation(summary = "Deleta um Produto", description = "A resposta é o produto removido pelo ID")
+	@ApiResponses(value = { @ApiResponse(responseCode = "204", content = {
+			@Content(schema = @Schema(implementation = Produto.class), mediaType = "application/json") }, description = "Produto deletado com sucesso"),
+			@ApiResponse(responseCode = "401", description = "Erro de autenticação"),
+			@ApiResponse(responseCode = "403", description = "Não há permissão para acessar o recurso"),
+			@ApiResponse(responseCode = "404", description = "Produto não encontrado"),
+			@ApiResponse(responseCode = "505", description = "Exceção interna da aplicação") })
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deletar(@PathVariable Long id) {
+		service.deletar(id);
+		return ResponseEntity.noContent().build();
+	}
 }
