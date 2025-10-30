@@ -1,6 +1,11 @@
 package br.com.serratec.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "produto")
@@ -10,12 +15,18 @@ public class Produto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Nome do produto é obrigatório!")
     private String nome;
+    
     private String descricao;
+    
+    @Min(value = 1, message = "Preço do produto deve ser maior que zero!")
     private Double preco;
 
-    @ManyToOne
-    @JoinColumn(name = "categoria_id")
+    @JsonBackReference
+	@ManyToOne
+	@NotNull(message = "Produto deve estar vinculado a uma categoria válida!")
+	@JoinColumn(name = "id_categoria")
     private Categoria categoria;
 
     public Produto() {
